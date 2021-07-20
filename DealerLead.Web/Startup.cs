@@ -85,10 +85,6 @@ namespace DealerLead.Web
 
         private async Task OnTokenValidatedFunc(TokenValidatedContext context)
         {
-            //  Register the user
-            AuthHelper authHelper = new AuthHelper(new DealerLeadDBContext());
-            authHelper.LoginDealerUser(context.Principal);
-
             //  DO NOT TOUCH
             await Task.CompletedTask.ConfigureAwait(false);
         }
