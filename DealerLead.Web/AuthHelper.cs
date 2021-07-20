@@ -17,6 +17,9 @@ namespace DealerLead.Web
 
         private string GetOid(ClaimsPrincipal user)
         {
+            if (!user.Identity.IsAuthenticated)
+                return null;
+
             var identity = (ClaimsIdentity)user.Identity;
 
             if (identity.Claims.Count() > 0)
@@ -24,32 +27,27 @@ namespace DealerLead.Web
                     .FirstOrDefault(x => x.Type == "http://schemas.microsoft.com/identity/claims/objectidentifier")
                     .Value;
             else
-                return "";
+                return null;
         }
 
-        public dynamic GetDealerUser(ClaimsPrincipal user)
+        public dynamic LoginDealerUser(ClaimsPrincipal user)
         {
             var result = new Dictionary<string, object>();
-
             var guid = GetOid(user);
 
             if (!String.IsNullOrWhiteSpace(guid))
             {
-                result["HasOid"] = true;
+                result["Known"] = true;
 
                 Guid oid = Guid.Parse(guid);
-
                 var checkUser = _context.DealerLeadUser.FirstOrDefault(x => x.AzureId == oid);
-            
+
                 if (checkUser == null)
-                    result["KnownUser"] = false;
-                else
-                    result["KnownUser"] = true;
+                    CreateDealerUser(user);
             }
             else
             {
-                result["HasOid"] = false;
-                result["KnownUser"] = false;
+                result["Known"] = false;
             }
 
             return result;

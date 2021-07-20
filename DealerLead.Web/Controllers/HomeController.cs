@@ -25,19 +25,12 @@ namespace DealerLead.Web.Controllers
         [AllowAnonymous]
         public IActionResult Index()
         {
-            var data = _authHelper.GetDealerUser(User);
+            var data = _authHelper.LoginDealerUser(User);
 
             foreach (var key in data.Keys)
                 ViewData[key] = data[key];
             
             return View("Index");
-        }
-
-        [AllowAnonymous]
-        public IActionResult Register()
-        {
-            _authHelper.CreateDealerUser(User);
-            return Index();
         }
 
         [Authorize]

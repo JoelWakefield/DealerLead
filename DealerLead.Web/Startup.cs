@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Claims;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
@@ -30,7 +31,12 @@ namespace DealerLead.Web
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddAuthentication(OpenIdConnectDefaults.AuthenticationScheme)
-                .AddMicrosoftIdentityWebApp(Configuration.GetSection("AzureAd"));
+                .AddMicrosoftIdentityWebApp(options =>
+                {
+                    Configuration.Bind("AzureAD", options);
+                    options.Events ??= new OpenIdConnectEvents();
+                    options.Events.OnTokenValidated += OnTokenValidatedFunc;
+                });
 
             services.AddControllersWithViews(options =>
             {
@@ -75,6 +81,16 @@ namespace DealerLead.Web
                     pattern: "{controller=Home}/{action=Index}/{id?}");
                 endpoints.MapRazorPages();
             });
+        }
+
+        private async Task OnTokenValidatedFunc(TokenValidatedContext context)
+        {
+            //  Register the user
+            AuthHelper authHelper = new AuthHelper(new DealerLeadDBContext());
+            authHelper.LoginDealerUser(context.Principal);
+
+            //  DO NOT TOUCH
+            await Task.CompletedTask.ConfigureAwait(false);
         }
     }
 }
