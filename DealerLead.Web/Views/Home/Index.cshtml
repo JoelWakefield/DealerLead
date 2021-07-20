@@ -1,0 +1,37 @@
+﻿@{
+    ViewData["Title"] = "Home Page";
+}
+
+<div class="text-center">
+    <h1 class="display-4">Dear Leader of Dealer Land</h1>
+
+    @if ((bool)ViewData["HasOid"])
+    {
+        @if ((bool)ViewData["KnownUser"])
+        {
+            <p>Welcome aboard, Captain!</p>
+
+            <ul class="navbar-nav flex-grow-1">
+                <li class="nav-item">
+                    <a class="nav-link" asp-area="" asp-controller="SupportedStates" asp-action="Index">States</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" asp-area="" asp-controller="SupportedMakes" asp-action="Index">Makes</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" asp-area="" asp-controller="SupportedModels" asp-action="Index">Models</a>
+                </li>
+            </ul>
+        }
+        else
+        {
+            <p>Register if you wish to use this site.</p>
+
+            <a class="btn btn-dark" asp-controller="Home" asp-action="Register">Register</a>
+        }
+    }
+    else
+    {
+        <p>I don't even know who you are. Please, sign in.</p>
+    }
+</div>
