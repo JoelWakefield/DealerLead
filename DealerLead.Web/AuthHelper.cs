@@ -53,6 +53,17 @@ namespace DealerLead.Web
             return result;
         }
 
+        public int GetUserId(ClaimsPrincipal user)
+        {
+            var guid = Guid.Parse(GetOid(user));
+            var checkUser = _context.DealerLeadUser.FirstOrDefault(x => x.AzureId == guid);
+
+            if (checkUser == null)
+                return 0;
+            else
+                return checkUser.Id;
+        }
+
         public void CreateDealerUser(ClaimsPrincipal user)
         {
             Guid oid = Guid.Parse(GetOid(user));
