@@ -23,7 +23,10 @@ namespace DealerLead.Web.Controllers
 
         public async Task<IActionResult> Index()
         {
-            return View(await _context.Dealership.ToListAsync());
+            var userId = _tokenAuth.GetUserId(User);
+            return View(await _context.Dealership
+                .Where(d => d.CreatingUserId == userId)
+                .ToListAsync());
         }
 
         public async Task<IActionResult> Details(int? id)
@@ -52,11 +55,12 @@ namespace DealerLead.Web.Controllers
             if (ModelState.IsValid)
             {
                 dealership.CreateDate = DateTime.Now;
-                var user = _tokenAuth.GetUserId(User);
+                var userId = _tokenAuth.GetUserId(User);
 
-                if (user == null)
+                if (userId == null)
                     return NotFound();
-
+                
+                dealership.CreatingUserId = (int)userId;
                 _context.Add(dealership);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));

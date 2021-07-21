@@ -12,16 +12,23 @@ namespace DealerLead.Web.Controllers
     public class VehiclesController : Controller
     {
         private readonly DealerLeadDBContext _context;
+        private readonly TokenAuth _authHelper;
 
-        public VehiclesController(DealerLeadDBContext context)
+        public VehiclesController(DealerLeadDBContext context, TokenAuth authHelper)
         {
             _context = context;
+            _authHelper = authHelper;
         }
 
         // GET: Vehicles
         public async Task<IActionResult> Index()
         {
-            var vehicles = _context.Vehicle.Include(v => v.Dealership).Include(v => v.Model);
+            var userId = _authHelper.GetUserId(User);
+            var dealerships = _context.Dealership.Where(d => d.CreatingUserId == userId);
+            var vehicles = _context.Vehicle
+                .Include(v => v.Dealership)
+                .Where(v => dealerships.Contains(v.Dealership))
+                .Include(v => v.Model);
             return View(await vehicles.ToListAsync());
         }
 
@@ -48,7 +55,8 @@ namespace DealerLead.Web.Controllers
         // GET: Vehicles/Create
         public IActionResult Create()
         {
-            ViewData["Dealerships"] = new SelectList(_context.Dealership, "Id", "Name");
+            var userId = _authHelper.GetUserId(User);
+            ViewData["Dealerships"] = new SelectList(_context.Dealership.Where(d => d.CreatingUserId == userId), "Id", "Name");
             ViewData["Models"] = new SelectList(_context.SupportedModel, "Id", "Name");
             return View();
         }
@@ -84,7 +92,9 @@ namespace DealerLead.Web.Controllers
             {
                 return NotFound();
             }
-            ViewData["Dealerships"] = new SelectList(_context.Dealership, "Id", "Name", vehicle.DealershipId);
+
+            var userId = _authHelper.GetUserId(User);
+            ViewData["Dealerships"] = new SelectList(_context.Dealership.Where(d => d.CreatingUserId == userId), "Id", "Name", vehicle.DealershipId);
             ViewData["Models"] = new SelectList(_context.SupportedModel, "Id", "Name", vehicle.ModelId);
             return View(vehicle);
         }

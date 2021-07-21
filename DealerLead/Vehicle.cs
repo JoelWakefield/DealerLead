@@ -32,15 +32,3 @@ namespace DealerLead
         public Dealership Dealership { get; set; }
     }
 }
-
-
-//--ModelId INT NOT NULL,
-//-- 	MSRP MONEY NOT NULL,
-//-- 	StockNumber VARCHAR(30) NOT NULL,
-//-- 	Color VARCHAR(30) NOT NULL,
-//-- 	DealershipId INT NOT NULL,
-//-- 	SellDate DATETIME,
-//-- 	CreateDate DATETIME NOT NULL DEFAULT(getdate()),
-//--ModifyDate DATETIME,
-//--CONSTRAINT FK_Vehicle_SupportedModel FOREIGN KEY (ModelId) REFERENCES SupportedModel,
-//-- 	CONSTRAINT FK_Vehicle_Dealership FOREIGN KEY (DealershipId) REFERENCES Dealership
