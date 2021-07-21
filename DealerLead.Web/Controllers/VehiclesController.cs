@@ -12,18 +12,18 @@ namespace DealerLead.Web.Controllers
     public class VehiclesController : Controller
     {
         private readonly DealerLeadDBContext _context;
-        private readonly TokenAuth _authHelper;
+        private readonly TokenAuth _tokenAuth;
 
-        public VehiclesController(DealerLeadDBContext context, TokenAuth authHelper)
+        public VehiclesController(DealerLeadDBContext context, TokenAuth tokenAuth)
         {
             _context = context;
-            _authHelper = authHelper;
+            _tokenAuth = tokenAuth;
         }
 
         // GET: Vehicles
         public async Task<IActionResult> Index()
         {
-            var userId = _authHelper.GetUserId(User);
+            var userId = _tokenAuth.GetUserId(User);
             var dealerships = _context.Dealership.Where(d => d.CreatingUserId == userId);
             var vehicles = _context.Vehicle
                 .Include(v => v.Dealership)
@@ -55,7 +55,7 @@ namespace DealerLead.Web.Controllers
         // GET: Vehicles/Create
         public IActionResult Create()
         {
-            var userId = _authHelper.GetUserId(User);
+            var userId = _tokenAuth.GetUserId(User);
             ViewData["Dealerships"] = new SelectList(_context.Dealership.Where(d => d.CreatingUserId == userId), "Id", "Name");
             ViewData["Models"] = new SelectList(_context.SupportedModel, "Id", "Name");
             return View();
@@ -93,7 +93,7 @@ namespace DealerLead.Web.Controllers
                 return NotFound();
             }
 
-            var userId = _authHelper.GetUserId(User);
+            var userId = _tokenAuth.GetUserId(User);
             ViewData["Dealerships"] = new SelectList(_context.Dealership.Where(d => d.CreatingUserId == userId), "Id", "Name", vehicle.DealershipId);
             ViewData["Models"] = new SelectList(_context.SupportedModel, "Id", "Name", vehicle.ModelId);
             return View(vehicle);
