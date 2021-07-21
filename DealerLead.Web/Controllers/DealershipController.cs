@@ -2,21 +2,23 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 
 namespace DealerLead.Web.Controllers
 {
+    [Authorize]
     public class DealershipController : Controller
     {
         private readonly DealerLeadDBContext _context;
-        private readonly AuthHelper _authHelper;
+        private readonly TokenAuth _tokenAuth;
 
-        public DealershipController(DealerLeadDBContext context, AuthHelper authHelper)
+        public DealershipController(DealerLeadDBContext context, TokenAuth tokenAuth)
         {
             _context = context;
-            _authHelper = authHelper;
+            _tokenAuth = tokenAuth;
         }
 
         public async Task<IActionResult> Index()
@@ -50,7 +52,10 @@ namespace DealerLead.Web.Controllers
             if (ModelState.IsValid)
             {
                 dealership.CreateDate = DateTime.Now;
-                dealership.CreatingUserId = _authHelper.GetUserId(User);
+                var user = _tokenAuth.GetUserId(User);
+
+                if (user == null)
+                    return NotFound();
 
                 _context.Add(dealership);
                 await _context.SaveChangesAsync();

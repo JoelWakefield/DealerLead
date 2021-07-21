@@ -6,16 +6,9 @@ using System.Threading.Tasks;
 
 namespace DealerLead.Web
 {
-    public class AuthHelper
+    public static class AuthHelper
     {
-        private readonly DealerLeadDBContext _context;
-
-        public AuthHelper(DealerLeadDBContext context)
-        {
-            _context = context;
-        }
-
-        private string GetOid(ClaimsPrincipal user)
+        public static string GetOid(ClaimsPrincipal user)
         {
             if (!user.Identity.IsAuthenticated)
                 return null;
@@ -28,52 +21,6 @@ namespace DealerLead.Web
                     .Value;
             else
                 return null;
-        }
-
-        public dynamic LoginDealerUser(ClaimsPrincipal user)
-        {
-            var result = new Dictionary<string, object>();
-            var guid = GetOid(user);
-
-            if (!String.IsNullOrWhiteSpace(guid))
-            {
-                result["Known"] = true;
-
-                Guid oid = Guid.Parse(guid);
-                var checkUser = _context.DealerLeadUser.FirstOrDefault(x => x.AzureId == oid);
-
-                if (checkUser == null)
-                    CreateDealerUser(user);
-            }
-            else
-            {
-                result["Known"] = false;
-            }
-
-            return result;
-        }
-
-        public int GetUserId(ClaimsPrincipal user)
-        {
-            var guid = Guid.Parse(GetOid(user));
-            var checkUser = _context.DealerLeadUser.FirstOrDefault(x => x.AzureId == guid);
-
-            if (checkUser == null)
-                return 0;
-            else
-                return checkUser.Id;
-        }
-
-        public void CreateDealerUser(ClaimsPrincipal user)
-        {
-            Guid oid = Guid.Parse(GetOid(user));
-
-            _context.DealerLeadUser.Add(new DealerLeadUser
-            {
-                AzureId = oid,
-                CreateDate = DateTime.Now
-            });
-            _context.SaveChanges();
         }
     }
 }
