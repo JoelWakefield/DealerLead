@@ -14,22 +14,20 @@ namespace DealerLead.Web.Controllers
     public class HomeController : Controller
     {
         private readonly ILogger<HomeController> _logger;
-        private readonly AuthHelper _authHelper;
 
-        public HomeController(ILogger<HomeController> logger, AuthHelper authHelper)
+        public HomeController(ILogger<HomeController> logger)
         {
             _logger = logger;
-            _authHelper = authHelper;
         }
 
         [AllowAnonymous]
         public IActionResult Index()
         {
-            var data = _authHelper.LoginDealerUser(User);
+            if (User.Identity.IsAuthenticated)
+                ViewData["Known"] = true;
+            else
+                ViewData["Known"] = false;
 
-            foreach (var key in data.Keys)
-                ViewData[key] = data[key];
-            
             return View("Index");
         }
 

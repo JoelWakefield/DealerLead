@@ -50,7 +50,7 @@ namespace DealerLead.Web
                  .AddMicrosoftIdentityUI();
 
             services.AddDbContext<DealerLeadDBContext>();
-            services.AddScoped<AuthHelper>();
+            services.AddScoped<TokenAuth>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -85,6 +85,12 @@ namespace DealerLead.Web
 
         private async Task OnTokenValidatedFunc(TokenValidatedContext context)
         {
+            if (context.Principal.Identity.IsAuthenticated)
+            {
+                TokenAuth auth = new TokenAuth(new DealerLeadDBContext());
+                auth.LoginDealerUser(context.Principal);
+            }
+
             //  DO NOT TOUCH
             await Task.CompletedTask.ConfigureAwait(false);
         }
